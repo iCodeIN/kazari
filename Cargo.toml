@@ -2,7 +2,7 @@
 name = "kazari"
 version = "0.0.1"
 description = "A no_std GUI software stack (Work-in-Progress)"
-license = "CC0-1.0 OR MIT"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/nuta/kazari"
 authors = ["Seiya Nuta <nuta@seiya.me>"]
 edition = "2018"

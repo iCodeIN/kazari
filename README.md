@@ -59,4 +59,4 @@ References
 
 License
 -------
-[CC0](https://creativecommons.org/publicdomain/zero/1.0/) or [MIT](https://opensource.org/licenses/MIT) *except* files in `protocols`. Choose whichever you prefer.
+See [LICENSE.md](https://github.com/nuta/kazari/blob/main/LICENSE.md).

@@ -2,6 +2,8 @@ use hashbrown::HashMap;
 
 use crate::{
     client::{Client, ClientId},
+    object::ObjectId,
+    objects::get_message_handler_by_name,
     system::System,
 };
 
@@ -16,6 +18,20 @@ impl<S: System> Server<S> {
             system,
             clients: HashMap::new(),
         }
+    }
+
+    fn do_process_request(&mut self, client: &mut Client, object: ObjectId) {
+        let client: &mut Client = { todo!() };
+        let object_type = match client.objects().get_object_by_id(object) {
+            Some(object) => object.name(),
+            None => {
+                trace!("unknown object ID: {:?}", object);
+                return;
+            }
+        };
+
+        let handler = get_message_handler_by_name(object_type);
+        handler.wl_buffer(client, object);
     }
 }
 

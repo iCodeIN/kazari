@@ -28,7 +28,7 @@ pub trait Object: Downcast {
 impl_downcast!(Object);
 
 pub trait MessageHandler {
-    fn wl_buffer(&self, client: &mut Client) {}
+    fn wl_buffer(&self, client: &mut Client, object_id: ObjectId) {}
 }
 
 pub struct ObjectMap {
@@ -42,8 +42,15 @@ impl ObjectMap {
         }
     }
 
-    pub fn get_by_id(&self, index: ObjectId) -> Option<&dyn Object> {
+    pub fn get_object_by_id(&self, index: ObjectId) -> Option<&dyn Object> {
         self.inner.get(index.0).map(|object| object.as_ref())
+    }
+
+    pub fn get_mut_by_id<T: Object>(&mut self, id: ObjectId) -> Option<&mut T> {
+        self.get_mut(ObjectRef {
+            id,
+            _pd: PhantomData::<T>,
+        })
     }
 
     pub fn get_mut<T: Object>(&mut self, index: ObjectRef<T>) -> Option<&mut T> {
@@ -78,18 +85,5 @@ impl ObjectMap {
                     .expect("failed to downcast into a Wayland object")
             }),
         )
-    }
-
-    fn handle_request(&mut self, client: &mut Client, object: ObjectId) {
-        let object_type = match self.get_by_id(object) {
-            Some(object) => object.name(),
-            None => {
-                trace!("unknown object ID: {:?}", object);
-                return;
-            }
-        };
-
-        let handler = get_message_handler_by_name(object_type);
-        handler.wl_buffer(client);
     }
 }

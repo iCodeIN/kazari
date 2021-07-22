@@ -9,6 +9,9 @@ path = "lib.rs"
 [dependencies]
 log = "0"
 hashbrown = "0"
+downcast-rs = { version = "1.2.0", default-features = false }
+
+kazari_common = { "path" = "../common" }
 
 [dev-dependencies]
 pretty_assertions = "0"

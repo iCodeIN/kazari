@@ -23,6 +23,13 @@ impl<T> IdTable<T> {
         self.inner.remove(index)
     }
 
+    pub fn get(&self, index: usize) -> Option<&T> {
+        match self.inner.get(index) {
+            Some(value) => value.as_ref(),
+            None => None,
+        }
+    }
+
     pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
         match self.inner.get_mut(index) {
             Some(value) => value.as_mut(),

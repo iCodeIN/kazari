@@ -18,10 +18,7 @@ impl Object for WlSurface {
 pub struct Handler;
 
 impl MessageHandler for Handler {
-    fn wl_buffer(&self, client: &mut Client, object_id: ObjectId) {
-        let this = client
-            .objects_mut()
-            .get_mut_by_id::<WlSurface>(object_id)
-            .unwrap();
+    fn wl_surface(&self, client: &mut Client, this: ObjectRef<WlSurface>) {
+        let this = client.objects_mut().get_mut(this).unwrap();
     }
 }

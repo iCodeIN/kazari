@@ -2,8 +2,8 @@ use hashbrown::HashMap;
 
 use crate::{
     client::{Client, ClientId},
-    object::ObjectId,
-    objects::get_message_handler_by_name,
+    object::{ObjectId, ObjectRef},
+    objects::{get_message_handler_by_name, wl_surface::WlSurface},
     system::System,
 };
 
@@ -31,7 +31,8 @@ impl<S: System> Server<S> {
         };
 
         let handler = get_message_handler_by_name(object_type);
-        handler.wl_buffer(client, object);
+        let this = unsafe { ObjectRef::from_id(object) };
+        handler.wl_surface(client, this);
     }
 }
 

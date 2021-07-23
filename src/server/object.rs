@@ -4,7 +4,7 @@ use alloc::boxed::Box;
 use downcast_rs::{impl_downcast, Downcast};
 use kazari_common::id_table::IdTable;
 
-use crate::{client::Client, objects::get_message_handler_by_name};
+use crate::{client::Client, objects::wl_surface::WlSurface};
 
 #[derive(Debug, Clone, Copy, PartialEq, Hash)]
 pub struct ObjectId(usize);
@@ -15,6 +15,15 @@ pub struct ObjectRef<T: Object> {
 }
 
 impl<T: Object> ObjectRef<T> {
+    /// # Safety
+    /// A caller must ensure that `id` is surely points to a object typed `T`.
+    pub unsafe fn from_id(id: ObjectId) -> ObjectRef<T> {
+        ObjectRef {
+            id,
+            _pd: PhantomData,
+        }
+    }
+
     pub fn id_as_usize(&self) -> usize {
         self.id.0
     }
@@ -28,7 +37,7 @@ pub trait Object: Downcast {
 impl_downcast!(Object);
 
 pub trait MessageHandler {
-    fn wl_buffer(&self, client: &mut Client, object_id: ObjectId) {}
+    fn wl_surface(&self, client: &mut Client, this: ObjectRef<WlSurface>) {}
 }
 
 pub struct ObjectMap {

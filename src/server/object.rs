@@ -9,6 +9,7 @@ use crate::{client::Client, objects::wl_surface::WlSurface};
 #[derive(Debug, Clone, Copy, PartialEq, Hash)]
 pub struct ObjectId(usize);
 
+#[derive(Debug)]
 pub struct ObjectRef<T: Object> {
     id: ObjectId,
     _pd: PhantomData<T>,
@@ -26,6 +27,12 @@ impl<T: Object> ObjectRef<T> {
 
     pub fn id_as_usize(&self) -> usize {
         self.id.0
+    }
+}
+
+impl<T: Object> Clone for ObjectRef<T> {
+    fn clone(&self) -> Self {
+        unsafe { ObjectRef::from_id(self.id) }
     }
 }
 
@@ -55,14 +62,16 @@ impl ObjectMap {
         self.inner.get(index.0).map(|object| object.as_ref())
     }
 
-    pub fn get_mut_by_id<T: Object>(&mut self, id: ObjectId) -> Option<&mut T> {
-        self.get_mut(ObjectRef {
-            id,
-            _pd: PhantomData::<T>,
+    pub fn get<T: Object>(&self, index: &ObjectRef<T>) -> Option<&T> {
+        self.inner.get(index.id_as_usize()).map(|object| {
+            object
+                .as_any()
+                .downcast_ref::<T>()
+                .expect("failed to downcast into a Wayland object")
         })
     }
 
-    pub fn get_mut<T: Object>(&mut self, index: ObjectRef<T>) -> Option<&mut T> {
+    pub fn get_mut<T: Object>(&mut self, index: &ObjectRef<T>) -> Option<&mut T> {
         self.inner.get_mut(index.id_as_usize()).map(|object| {
             object
                 .as_any_mut()
@@ -73,8 +82,8 @@ impl ObjectMap {
 
     pub fn get_mut2<T1: Object, T2: Object>(
         &mut self,
-        index1: ObjectRef<T1>,
-        index2: ObjectRef<T2>,
+        index1: &ObjectRef<T1>,
+        index2: &ObjectRef<T2>,
     ) -> (Option<&mut T1>, Option<&mut T2>) {
         let (v1, v2) = self
             .inner
